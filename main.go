@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"math/rand"
+	"bufio"
 
 )
 
@@ -33,6 +34,27 @@ func main () {
 	}
 	
 	playGame (grid_width, grid_height)	
+}
+
+func readConfigFileByLine (filePath string) (error, []string) {
+	 var configLines []string
+
+	 file, err := os.Open(filePath)
+     if err != nil {
+       return err, nil
+     }
+     defer file.Close()
+
+	 scanner := bufio.NewScanner(file)
+     for scanner.Scan() {
+         configLines = append (configLines, scanner.Text ())
+     }
+
+    if err := scanner.Err(); err != nil {
+    	return err, nil
+    }
+
+	return nil, configLines
 }
 
 func allDead () bool {
