@@ -6,6 +6,7 @@ import (
 	"os"
 	"math/rand"
 	"bufio"
+	"strconv"
 
 )
 
@@ -24,6 +25,8 @@ var (
 	grid_width int = MAX_GRID_WIDTH
 	grid_height int = MAX_GRID_HEIGHT
 	cycle int = 1
+	configFile string = "config.txt"
+	configLines []string
 )
 
 func main () {
@@ -33,6 +36,15 @@ func main () {
 		setInitialRandomGridState ()
 	}
 	
+	if err, configLines := readConfigFileByLine (configFile); err == nil {
+		grid_width,_ = strconv.Atoi(configLines[0])
+		grid_height,_ = strconv.Atoi(configLines[1])
+		clearGrid ()
+		populateCells ()
+	} else {
+		setInitialRandomGridState ()
+	}
+    
 	playGame (grid_width, grid_height)	
 }
 
@@ -57,6 +69,23 @@ func readConfigFileByLine (filePath string) (error, []string) {
 	return nil, configLines
 }
 
+func clearGrid () {
+	for y := 0; y < grid_height; y++ {
+		for x := 0; x < grid_width; x++ {
+			grid[x][y] = CELL_DEAD
+		}
+	}
+}
+
+func populateCells () {
+	for line := 0; line < len(configLines); line++ {
+		for offset := 2; offset < len(configLines[line]); offset++ {
+			if configLines[line][offset] == 'O' {
+				grid[line][offset] = CELL_ALIVE
+			}
+		}
+	}	
+}
 func allDead () bool {
 	var count int
 
@@ -95,7 +124,6 @@ func playGame (x int, y int) {
 }
 
 func showGrid (){
-	fmt.Printf ("Cycle : %02d\n", cycle)
 	for y := 0; y < grid_height; y++ {
 		for x := 0; x < grid_width; x++ {
 			switch grid[x][y] {
@@ -104,6 +132,9 @@ func showGrid (){
 				default:
 			}
 		}
+		if y == 0 {
+			fmt.Printf ("   Cycle : %02d", cycle)
+		} 
 		fmt.Println ()
 	}	
 	fmt.Println ()
