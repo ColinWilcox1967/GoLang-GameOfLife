@@ -148,13 +148,13 @@ func countLiveNeighbours (x int, y int) int {
 	var count int
 	for deltaX := -1; deltaX <= 1; deltaX++ {
 		for deltaY := -1; deltaY <= 1; deltaY++ {
-			if deltaX !=0 && deltaY != 0 {
 				if onGrid (x+deltaX, y+deltaY) {
 					if grid[x+deltaX][y+deltaY] == CELL_ALIVE {
-						count++
+						if !checkingSelf (deltaX, deltaY) {
+							count++
+						}
 					}
 				}
-			}
 		}
 	}
 
@@ -163,6 +163,10 @@ func countLiveNeighbours (x int, y int) int {
 
 func onGrid (x int, y int) bool {
 	return (x >= 0) && (x < grid_width) && (y >= 0) && (y < grid_height)
+}
+
+func checkingSelf (dx int, dy int) bool {
+	return (dx == 0) && (dy == 0)
 }
 
 func evolveNextStep () {
@@ -181,5 +185,6 @@ func evolveNextStep () {
 					}
 				}
 			}
+			fmt.Println ()
 		}
 }
