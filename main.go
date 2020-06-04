@@ -8,6 +8,9 @@ import (
 	"bufio"
 	"strconv"
 	"flag"
+	"unicode"
+
+	"github.com/eiannone/keyboard"
 )
 
 const (
@@ -119,10 +122,23 @@ func setInitialRandomGridState () {
 }
 
 func playGame (x int, y int) {
-	for !allDead () {
+	
+	var exitGame bool
+
+	for !allDead () && !exitGame {
 		showGrid ()
-		evolveNextStep ()
-		cycle++
+		
+		char, _, err := keyboard.GetSingleKey ()
+		if err == nil {
+			if byte(unicode.ToUpper(rune(char))) == 'X' {
+				exitGame = true
+			}	
+		}
+
+		if !exitGame {
+			evolveNextStep ()
+			cycle++
+		}
 	}
 	showGrid ()
 }
@@ -138,10 +154,11 @@ func showGrid (){
 		}
 		if y == 0 {
 			fmt.Printf ("   Cycle : %02d", cycle)
-		} 
+		} else if  y == grid_height - 1 {
+			fmt.Printf ("   Press any key (X to Exit)")
+		}
 		fmt.Println ()
 	}	
-	fmt.Println ()
 }
 
 func countLiveNeighbours (x int, y int) int {
@@ -161,6 +178,7 @@ func countLiveNeighbours (x int, y int) int {
 	return count
 }
 
+	
 func onGrid (x int, y int) bool {
 	return (x >= 0) && (x < grid_width) && (y >= 0) && (y < grid_height)
 }
