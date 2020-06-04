@@ -7,13 +7,14 @@ import (
 	"math/rand"
 	"bufio"
 	"strconv"
-
+	"flag"
 )
 
 const (
 	GAME_OF_LIFE_VERSION string = "1.0"
 	MAX_GRID_WIDTH int = 10
 	MAX_GRID_HEIGHT int = 10
+	DEFAULT_CONFIG_FILE = "CONFIG.TXT"
 
 	CELL_DEAD uint8 = 0
 	CELL_ALIVE uint8 = 1
@@ -25,7 +26,7 @@ var (
 	grid_width int = MAX_GRID_WIDTH
 	grid_height int = MAX_GRID_HEIGHT
 	cycle int = 1
-	configFile string = "config.txt"
+	configFile string = DEFAULT_CONFIG_FILE
 	configLines []string
 )
 
@@ -35,6 +36,9 @@ func main () {
 	if len(os.Args) == 1 {
 		setInitialRandomGridState ()
 	}
+
+	flag.StringVar(&configFile, "config", DEFAULT_CONFIG_FILE, "Board configuration file")
+	flag.Parse ()
 	
 	if err, configLines := readConfigFileByLine (configFile); err == nil {
 		grid_width,_ = strconv.Atoi(configLines[0])
@@ -49,8 +53,7 @@ func main () {
 }
 
 func readConfigFileByLine (filePath string) (error, []string) {
-	 var configLines []string
-
+	
 	 file, err := os.Open(filePath)
      if err != nil {
        return err, nil
@@ -59,14 +62,14 @@ func readConfigFileByLine (filePath string) (error, []string) {
 
 	 scanner := bufio.NewScanner(file)
      for scanner.Scan() {
-         configLines = append (configLines, scanner.Text ())
+          configLines = append (configLines, scanner.Text ())
      }
 
-    if err := scanner.Err(); err != nil {
-    	return err, nil
-    }
+     if err := scanner.Err(); err != nil {
+     	return err, nil
+     }
 
-	return nil, configLines
+	 return nil, configLines
 }
 
 func clearGrid () {
@@ -78,14 +81,15 @@ func clearGrid () {
 }
 
 func populateCells () {
-	for line := 0; line < len(configLines); line++ {
-		for offset := 2; offset < len(configLines[line]); offset++ {
-			if configLines[line][offset] == 'O' {
-				grid[line][offset] = CELL_ALIVE
+	for line := 2; line < len(configLines); line++ {
+		for offset := 0; offset < len(configLines[line]); offset++ {
+			if configLines[line][offset] == 'o' {
+				grid[offset][line-2] = CELL_ALIVE
 			}
 		}
 	}	
 }
+
 func allDead () bool {
 	var count int
 
@@ -128,7 +132,7 @@ func showGrid (){
 		for x := 0; x < grid_width; x++ {
 			switch grid[x][y] {
 				case CELL_DEAD: fmt.Printf (".")
-				case CELL_ALIVE: fmt.Printf ("O")
+				case CELL_ALIVE: fmt.Printf ("o")
 				default:
 			}
 		}
