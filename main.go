@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"os"
 	"math/rand"
-	"bufio"
 	"strconv"
 	"flag"
 	"unicode"
 
 	"github.com/eiannone/keyboard"
+	fileutilities "github.com/colinwilcox1967/golangfileutilities"
 )
 
 const (
@@ -43,7 +43,7 @@ func main () {
 	flag.StringVar(&configFile, "config", DEFAULT_CONFIG_FILE, "Board configuration file")
 	flag.Parse ()
 	
-	if err, configLines := readConfigFileByLine (configFile); err == nil {
+	if err, configLines := fileutilities.ReadFileAsLines (configFile); err == nil {
 		grid_width,_ = strconv.Atoi(configLines[0])
 		grid_height,_ = strconv.Atoi(configLines[1])
 		clearGrid ()
@@ -53,26 +53,6 @@ func main () {
 	}
     
 	playGame (grid_width, grid_height)	
-}
-
-func readConfigFileByLine (filePath string) (error, []string) {
-	
-	 file, err := os.Open(filePath)
-     if err != nil {
-       return err, nil
-     }
-     defer file.Close()
-
-	 scanner := bufio.NewScanner(file)
-     for scanner.Scan() {
-          configLines = append (configLines, scanner.Text ())
-     }
-
-     if err := scanner.Err(); err != nil {
-     	return err, nil
-     }
-
-	 return nil, configLines
 }
 
 func clearGrid () {
