@@ -34,7 +34,6 @@ var (
 )
 
 func main () {
-
 	// get grid dimensions
 	if len(os.Args) == 1 {
 		setInitialRandomGridState ()
@@ -43,7 +42,8 @@ func main () {
 	flag.StringVar(&configFile, "config", DEFAULT_CONFIG_FILE, "Board configuration file")
 	flag.Parse ()
 	
-	if err, configLines := fileutilities.ReadFileAsLines (configFile); err == nil {
+	var err error
+	if err, configLines = fileutilities.ReadFileAsLines (configFile); err == nil {
 		grid_width,_ = strconv.Atoi(configLines[0])
 		grid_height,_ = strconv.Atoi(configLines[1])
 		clearGrid ()
@@ -102,12 +102,11 @@ func setInitialRandomGridState () {
 }
 
 func playGame (x int, y int) {
-	
 	var exitGame bool
 
 	for !allDead () && !exitGame {
 		showGrid ()
-		
+				
 		char, _, err := keyboard.GetSingleKey ()
 		if err == nil {
 			if byte(unicode.ToUpper(rune(char))) == 'X' {
@@ -157,7 +156,6 @@ func countLiveNeighbours (x int, y int) int {
 
 	return count
 }
-
 	
 func onGrid (x int, y int) bool {
 	return (x >= 0) && (x < grid_width) && (y >= 0) && (y < grid_height)
@@ -168,21 +166,18 @@ func checkingSelf (dx int, dy int) bool {
 }
 
 func evolveNextStep () {
-	 for y := 0; y < grid_height; y++ {
+	for y := 0; y < grid_height; y++ {
 		for x := 0; x < grid_width; x++ {
 				count := countLiveNeighbours (x,y)
-				if grid[x][y] == CELL_DEAD 	{
+				if grid[x][y] == CELL_ALIVE {
+					if count < 2 || count > 3 {
+						grid[x][y] = CELL_DEAD
+					}
+				} else {
 					if count == 3 {
 						grid[x][y] = CELL_ALIVE
 					}
-				} else 	{
-					if count == 2 || count == 3 {
-						grid[x][y] = CELL_ALIVE
-					} else {
-						grid[x][y] = CELL_DEAD
-					}
 				}
 			}
-			fmt.Println ()
 		}
 }
